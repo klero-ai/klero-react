@@ -1,5 +1,5 @@
 {
-  "name": "@klero/react",
+  "name": "@kleroai/react",
   "version": "0.1.0",
   "description": "Official Klero React SDK — feedback boards, roadmaps, changelogs, surveys & widgets",
   "type": "module",
@@ -39,6 +39,6 @@
   },
   "keywords": ["klero", "feedback", "roadmap", "changelog", "survey", "widget", "react"],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/kleroai/klero-react" },
+  "repository": { "type": "git", "url": "https://github.com/klero-ai/klero-react" },
   "homepage": "https://klero.ai"
 }
