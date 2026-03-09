@@ -1,31 +1,23 @@
 import { useEffect } from 'react';
-import { useKleroContext } from '../KleroProvider';
-import type { WidgetPosition, WidgetTab } from '../types';
+import { useKleroConfig } from '../KleroProvider';
+import type { KleroConfig } from '../types';
 
-export interface KleroWidgetProps {
-  position?: WidgetPosition;
-  tabs?: WidgetTab[];
-  defaultTab?: WidgetTab;
-}
+export type KleroWidgetProps = Partial<KleroConfig>
 
-export function KleroWidget({ position = 'bottom-right', tabs, defaultTab }: KleroWidgetProps) {
-  const { loaded, projectSlug, baseUrl, customerToken, loginUrl } = useKleroContext();
+export function KleroWidget({ projectSlug, baseUrl, customerToken, loginUrl }: KleroWidgetProps) {
+  const config = useKleroConfig({ projectSlug, baseUrl, customerToken, loginUrl });
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!config.loaded) return;
 
-    // Widget is a singleton — append to body
     const el = document.createElement('klero-widget');
     el.setAttribute(
       'data-config',
       JSON.stringify({
-        projectId: projectSlug,
-        baseUrl,
-        customerToken,
-        loginUrl,
-        position,
-        tabs,
-        defaultTab,
+        projectId: config.projectSlug,
+        baseUrl: config.baseUrl,
+        customerToken: config.customerToken,
+        loginUrl: config.loginUrl,
       }),
     );
     document.body.appendChild(el);
@@ -33,8 +25,8 @@ export function KleroWidget({ position = 'bottom-right', tabs, defaultTab }: Kle
       window.KleroWidget?.destroy();
       el.remove();
     };
-  }, [loaded, projectSlug, baseUrl, customerToken, loginUrl, position, tabs, defaultTab]);
+  }, [config.loaded, config.projectSlug, config.baseUrl, config.customerToken, config.loginUrl]);
 
-  // Widget renders to body via portal — no visible DOM here
+  // Widget renders to body — no visible DOM here
   return null;
 }

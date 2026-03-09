@@ -1,17 +1,17 @@
 import { useEffect } from 'react';
-import { useKleroContext } from '../KleroProvider';
+import { useKleroConfig } from '../KleroProvider';
 import { useKleroEvents } from '../useKleroEvents';
-import type { KleroSurveyCompletedEvent, KleroSurveyClosedEvent, KleroSurveyErrorEvent } from '../types';
+import type { KleroConfig, KleroSurveyCompletedEvent, KleroSurveyClosedEvent, KleroSurveyErrorEvent } from '../types';
 
-export interface KleroSurveyProps {
+export interface KleroSurveyProps extends Partial<KleroConfig> {
   surveyUlid: string;
   onComplete?: (data: KleroSurveyCompletedEvent) => void;
   onClose?: (data: KleroSurveyClosedEvent) => void;
   onError?: (data: KleroSurveyErrorEvent) => void;
 }
 
-export function KleroSurvey({ surveyUlid, onComplete, onClose, onError }: KleroSurveyProps) {
-  const { loaded, projectSlug, baseUrl, customerToken, loginUrl } = useKleroContext();
+export function KleroSurvey({ projectSlug, baseUrl, customerToken, loginUrl, surveyUlid, onComplete, onClose, onError }: KleroSurveyProps) {
+  const config = useKleroConfig({ projectSlug, baseUrl, customerToken, loginUrl });
 
   useKleroEvents({
     'klero:survey:completed': onComplete,
@@ -20,16 +20,16 @@ export function KleroSurvey({ surveyUlid, onComplete, onClose, onError }: KleroS
   });
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!config.loaded) return;
 
     const el = document.createElement('klero-survey');
     el.setAttribute(
       'data-config',
       JSON.stringify({
-        projectId: projectSlug,
-        baseUrl,
-        customerToken,
-        loginUrl,
+        projectId: config.projectSlug,
+        baseUrl: config.baseUrl,
+        customerToken: config.customerToken,
+        loginUrl: config.loginUrl,
         surveyUlid,
       }),
     );
@@ -38,7 +38,7 @@ export function KleroSurvey({ surveyUlid, onComplete, onClose, onError }: KleroS
       window.KleroSurvey?.destroy();
       el.remove();
     };
-  }, [loaded, projectSlug, baseUrl, customerToken, loginUrl, surveyUlid]);
+  }, [config.loaded, config.projectSlug, config.baseUrl, config.customerToken, config.loginUrl, surveyUlid]);
 
   return null;
 }

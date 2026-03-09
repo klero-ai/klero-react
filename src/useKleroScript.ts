@@ -4,12 +4,11 @@ const loadedScripts = new Set<string>();
 let loadPromise: Promise<void> | null = null;
 
 export function useKleroScript(baseUrl: string): { loaded: boolean; error: string | null } {
-  const [loaded, setLoaded] = useState(false);
+  const src = `${baseUrl}/embed/klero.js`;
+  const [loaded, setLoaded] = useState(() => loadedScripts.has(src));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const src = `${baseUrl}/embed/klero.js`;
-
     if (loadedScripts.has(src)) {
       setLoaded(true);
       return;

@@ -10,12 +10,11 @@ import {
   useKleroEvents,
 } from '../src';
 
-// Config matching iOS, Android, and React Native examples
 const PROJECT_SLUG = 'feedback';
 const BASE_URL = 'https://feedback.klero.ai';
 const SURVEY_ULID = '01KHRJEJDBP6T3PZZ7XFS5935Y';
 
-type Tab = 'feedback' | 'roadmap' | 'changelog' | 'widget' | 'survey';
+type Tab = 'feedback' | 'roadmap' | 'changelog' | 'widget' | 'survey' | 'provider';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'feedback', label: 'Feedback' },
@@ -23,17 +22,10 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'changelog', label: 'Changelog' },
   { id: 'widget', label: 'Widget' },
   { id: 'survey', label: 'Survey' },
+  { id: 'provider', label: 'With Provider' },
 ];
 
 function App() {
-  return (
-    <KleroProvider projectSlug={PROJECT_SLUG} baseUrl={BASE_URL}>
-      <ExampleApp />
-    </KleroProvider>
-  );
-}
-
-function ExampleApp() {
   const [activeTab, setActiveTab] = useState<Tab>('feedback');
   const [events, setEvents] = useState<string[]>([]);
 
@@ -67,11 +59,33 @@ function ExampleApp() {
       </nav>
 
       <main style={styles.content}>
-        {activeTab === 'feedback' && <FeedbackTab />}
-        {activeTab === 'roadmap' && <RoadmapTab />}
-        {activeTab === 'changelog' && <ChangelogTab />}
+        {activeTab === 'feedback' && (
+          <div>
+            <h2>Feedback Board</h2>
+            <p style={styles.description}>Collect and manage user feedback with voting and comments.</p>
+            <KleroFeedback projectSlug={PROJECT_SLUG} baseUrl={BASE_URL} style={{ minHeight: 600 }} />
+          </div>
+        )}
+
+        {activeTab === 'roadmap' && (
+          <div>
+            <h2>Product Roadmap</h2>
+            <p style={styles.description}>See what's planned, in progress, and completed.</p>
+            <KleroRoadmap projectSlug={PROJECT_SLUG} baseUrl={BASE_URL} style={{ minHeight: 600 }} />
+          </div>
+        )}
+
+        {activeTab === 'changelog' && (
+          <div>
+            <h2>Changelog</h2>
+            <p style={styles.description}>Stay up to date with the latest product updates.</p>
+            <KleroChangelog projectSlug={PROJECT_SLUG} baseUrl={BASE_URL} style={{ minHeight: 600 }} />
+          </div>
+        )}
+
         {activeTab === 'widget' && <WidgetTab />}
         {activeTab === 'survey' && <SurveyTab />}
+        {activeTab === 'provider' && <ProviderTab />}
       </main>
 
       {events.length > 0 && (
@@ -89,36 +103,6 @@ function ExampleApp() {
   );
 }
 
-function FeedbackTab() {
-  return (
-    <div>
-      <h2>Feedback Board</h2>
-      <p style={styles.description}>Collect and manage user feedback with voting and comments.</p>
-      <KleroFeedback style={{ minHeight: 600 }} />
-    </div>
-  );
-}
-
-function RoadmapTab() {
-  return (
-    <div>
-      <h2>Product Roadmap</h2>
-      <p style={styles.description}>See what's planned, in progress, and completed.</p>
-      <KleroRoadmap style={{ minHeight: 600 }} />
-    </div>
-  );
-}
-
-function ChangelogTab() {
-  return (
-    <div>
-      <h2>Changelog</h2>
-      <p style={styles.description}>Stay up to date with the latest product updates.</p>
-      <KleroChangelog style={{ minHeight: 600 }} />
-    </div>
-  );
-}
-
 function WidgetTab() {
   const [showWidget, setShowWidget] = useState(false);
 
@@ -126,19 +110,15 @@ function WidgetTab() {
     <div>
       <h2>In-App Widget</h2>
       <p style={styles.description}>
-        All-in-one floating widget with feedback, changelog, and roadmap tabs.
+        Floating widget configured from the dashboard.
       </p>
-
       <button
         onClick={() => setShowWidget(!showWidget)}
         style={{ ...styles.button, ...(showWidget ? styles.dangerButton : {}) }}
       >
         {showWidget ? 'Remove Widget' : 'Show Widget'}
       </button>
-
-      {showWidget && (
-        <KleroWidget position="bottom-right" tabs={['feedback', 'roadmap', 'changelog']} />
-      )}
+      {showWidget && <KleroWidget projectSlug={PROJECT_SLUG} baseUrl={BASE_URL} />}
     </div>
   );
 }
@@ -152,13 +132,13 @@ function SurveyTab() {
       <p style={styles.description}>
         Collect structured responses from users with customizable surveys.
       </p>
-
       <button onClick={() => setShowSurvey(!showSurvey)} style={styles.button}>
         {showSurvey ? 'Close Survey' : 'Open Survey'}
       </button>
-
       {showSurvey && (
         <KleroSurvey
+          projectSlug={PROJECT_SLUG}
+          baseUrl={BASE_URL}
           surveyUlid={SURVEY_ULID}
           onComplete={(data) => console.log('Survey completed:', data)}
           onClose={(data) => {
@@ -168,6 +148,20 @@ function SurveyTab() {
           onError={(data) => console.error('Survey error:', data)}
         />
       )}
+    </div>
+  );
+}
+
+function ProviderTab() {
+  return (
+    <div>
+      <h2>With Provider</h2>
+      <p style={styles.description}>
+        Use <code>KleroProvider</code> to share config across multiple components without repeating props.
+      </p>
+      <KleroProvider projectSlug={PROJECT_SLUG} baseUrl={BASE_URL}>
+        <KleroFeedback style={{ minHeight: 600 }} />
+      </KleroProvider>
     </div>
   );
 }
@@ -207,12 +201,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#6b7280',
     marginBottom: 16,
   },
-  buttonGroup: {
-    display: 'flex',
-    gap: 8,
-    flexWrap: 'wrap' as const,
-    marginBottom: 16,
-  },
   button: {
     padding: '10px 20px',
     backgroundColor: '#3b82f6',
@@ -225,16 +213,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   dangerButton: {
     backgroundColor: '#ef4444',
-  },
-  outlineButton: {
-    padding: '10px 20px',
-    backgroundColor: '#fff',
-    color: '#3b82f6',
-    border: '1px solid #3b82f6',
-    borderRadius: 8,
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 600,
   },
   eventLog: {
     position: 'fixed' as const,

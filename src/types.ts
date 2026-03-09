@@ -5,14 +5,6 @@ export interface KleroConfig {
   loginUrl?: string;
 }
 
-export type WidgetPosition = 'bottom-right' | 'bottom-left';
-export type WidgetTab = 'feedback' | 'roadmap' | 'changelog';
-
-export interface KleroWidgetConfig {
-  position?: WidgetPosition;
-  tabs?: WidgetTab[];
-  defaultTab?: WidgetTab;
-}
 
 export interface KleroSurveyCompletedEvent {
   surveyUlid: string;

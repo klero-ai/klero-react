@@ -1,33 +1,13 @@
-import { useRef, useEffect, type HTMLAttributes } from 'react';
-import { useKleroContext } from '../KleroProvider';
+import { type HTMLAttributes } from 'react';
+import { useKleroConfig } from '../KleroProvider';
+import { useKleroEmbed } from '../useKleroEmbed';
+import type { KleroConfig } from '../types';
 
-export interface KleroFeedbackProps extends HTMLAttributes<HTMLDivElement> {}
+export interface KleroFeedbackProps extends HTMLAttributes<HTMLDivElement>, Partial<KleroConfig> {}
 
-export function KleroFeedback({ ...divProps }: KleroFeedbackProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { loaded, projectSlug, baseUrl, customerToken, loginUrl } = useKleroContext();
-
-  useEffect(() => {
-    if (!loaded || !containerRef.current) return;
-
-    const el = document.createElement('klero-feedback');
-    el.setAttribute(
-      'data-config',
-      JSON.stringify({
-        projectId: projectSlug,
-        baseUrl,
-        customerToken,
-        loginUrl,
-      }),
-    );
-    containerRef.current.appendChild(el);
-
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
-    };
-  }, [loaded, projectSlug, baseUrl, customerToken, loginUrl]);
+export function KleroFeedback({ projectSlug, baseUrl, customerToken, loginUrl, ...divProps }: KleroFeedbackProps) {
+  const config = useKleroConfig({ projectSlug, baseUrl, customerToken, loginUrl });
+  const containerRef = useKleroEmbed('klero-feedback', config);
 
   return <div ref={containerRef} {...divProps} />;
 }

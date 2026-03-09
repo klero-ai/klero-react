@@ -1,18 +1,18 @@
-import { useCallback } from 'react';
-import { useKleroContext } from '../KleroProvider';
+import { useCallback, useContext } from 'react';
+import { KleroContext } from '../KleroProvider';
 
 export function useKleroSurvey() {
-  const { loaded } = useKleroContext();
+  const ctx = useContext(KleroContext);
 
   const open = useCallback(
     (surveyUlid: string) => {
-      if (!loaded) {
+      if (ctx && !ctx.loaded) {
         console.warn('Klero script not loaded yet');
         return;
       }
       window.Klero?.openSurvey(surveyUlid);
     },
-    [loaded],
+    [ctx],
   );
 
   const close = useCallback(() => {

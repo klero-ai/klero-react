@@ -1,5 +1,5 @@
 // Provider
-export { KleroProvider, useKleroContext } from './KleroProvider';
+export { KleroProvider, useKleroContext, useKleroConfig } from './KleroProvider';
 export type { KleroProviderProps } from './KleroProvider';
 
 // Components
@@ -18,9 +18,6 @@ export { useKleroScript } from './useKleroScript';
 // Types
 export type {
   KleroConfig,
-  WidgetPosition,
-  WidgetTab,
-  KleroWidgetConfig,
   KleroSurveyCompletedEvent,
   KleroSurveyClosedEvent,
   KleroSurveyErrorEvent,
